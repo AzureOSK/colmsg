@@ -124,6 +124,17 @@ Please use be careful."),
                 .long("download-dir")
                 .help("Show colmsg's default download directory.")
         )
+        .arg(
+            Arg::with_name("web-login")
+                .long("web-login")
+                .conflicts_with("web-login-setup")
+                .help("Sign in with the official web client. Requires exactly one --group."),
+        )
+        .arg(
+            Arg::with_name("web-login-setup")
+                .long("web-login-setup")
+                .help("Open normal Chrome for first-time web login setup."),
+        )
         .help_message("Print this help message.")
         .version_message("Show version information.")
 }

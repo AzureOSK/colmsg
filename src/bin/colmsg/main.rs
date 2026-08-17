@@ -4,12 +4,16 @@ extern crate clap;
 mod app;
 mod clap_app;
 pub mod config;
+mod web_login;
 
-use std::{process, io, io::Write};
+use std::{env, process, io, io::Write};
 
 use reqwest::StatusCode;
 
-use crate::{app::App, config::delete_access_token_file};
+use crate::{
+    app::{App, H_ACCESS_TOKEN_ENV, N_ACCESS_TOKEN_ENV, S_ACCESS_TOKEN_ENV},
+    config::delete_access_token_file,
+};
 
 use colmsg::dirs::PROJECT_DIRS;
 use colmsg::{errors::*, Config};
@@ -23,7 +27,7 @@ fn run_controller<C: SHNClient>(config: &Config<C>) -> Result<bool> {
 }
 
 fn run_sakurazaka(app: &App) -> Result<bool> {
-    if let None = app.matches.value_of("s_refresh_token") { return Ok(true) };
+    if !app.has_credentials("s_refresh_token", S_ACCESS_TOKEN_ENV) { return Ok(true) };
     let is_run_by_group = match app.matches.values_of("group") {
         Some(k) => k.clone().any(|v| v == "sakurazaka"),
         None => true
@@ -34,7 +38,7 @@ fn run_sakurazaka(app: &App) -> Result<bool> {
 }
 
 fn run_hinatazaka(app: &App) -> Result<bool> {
-    if let None = app.matches.value_of("h_refresh_token") { return Ok(true) };
+    if !app.has_credentials("h_refresh_token", H_ACCESS_TOKEN_ENV) { return Ok(true) };
     let is_run_by_group = match app.matches.values_of("group") {
         Some(k) => k.clone().any(|v| v == "hinatazaka"),
         None => true
@@ -45,7 +49,7 @@ fn run_hinatazaka(app: &App) -> Result<bool> {
 }
 
 fn run_nogizaka(app: &App) -> Result<bool> {
-    if let None = app.matches.value_of("n_refresh_token") { return Ok(true) };
+    if !app.has_credentials("n_refresh_token", N_ACCESS_TOKEN_ENV) { return Ok(true) };
     let is_run_by_group = match app.matches.values_of("group") {
         Some(k) => k.clone().any(|v| v == "nogizaka"),
         None => true
@@ -98,11 +102,20 @@ fn run() -> Result<bool> {
         writeln!(io::stdout(), "{}", PROJECT_DIRS.download_dir().to_string_lossy())?;
         return Ok(true);
     }
+    if app.matches.is_present("web-login-setup") {
+        web_login::setup(&app.matches)?;
+        return Ok(true);
+    }
+    if app.matches.is_present("web-login") {
+        let (token_env, access_token) = web_login::login(&app.matches)?;
+        env::set_var(token_env, access_token);
+    }
     let mut result = run_sakurazaka(&app);
     loop {
         match &result {
             Err(Error(ReqwestError(re), _)) => {
                 if Some(StatusCode::UNAUTHORIZED) != re.status() { break; };
+                if app.has_access_token(S_ACCESS_TOKEN_ENV) { break; };
                 delete_access_token_file()?;
                 result = run_sakurazaka(&app);
             }
@@ -117,6 +130,7 @@ fn run() -> Result<bool> {
         match &result {
             Err(Error(ReqwestError(re), _)) => {
                 if Some(StatusCode::UNAUTHORIZED) != re.status() { break; };
+                if app.has_access_token(H_ACCESS_TOKEN_ENV) { break; };
                 delete_access_token_file()?;
                 result = run_hinatazaka(&app);
             }
@@ -131,6 +145,7 @@ fn run() -> Result<bool> {
         match &result {
             Err(Error(ReqwestError(re), _)) => {
                 if Some(StatusCode::UNAUTHORIZED) != re.status() { break; };
+                if app.has_access_token(N_ACCESS_TOKEN_ENV) { break; };
                 delete_access_token_file()?;
                 result = run_nogizaka(&app);
             }
