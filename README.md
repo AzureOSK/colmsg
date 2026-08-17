@@ -1,3 +1,5 @@
+日本語 | [English](README.en.md)
+
 > [!WARNING]
 > 現在iOSで`refresh_token`が取得できない問題が発生しています。これは`colmsg`の問題ではなくメッセージアプリ側のアップデートによる影響です。櫻坂46・日向坂46・乃木坂46では[公式Web版を使う実験的な方法](doc/how_to_use_web_login.md)も利用できます。Androidの場合は引き続き[こちら](https://github.com/proshunsuke/colmsg/blob/main/doc/how_to_get_refresh_token.md#android%E3%82%A2%E3%83%97%E3%83%AA%E3%81%AE%E5%A0%B4%E5%90%88)を参考にしてください。
 
