@@ -92,6 +92,16 @@ fn run_yodel(app: &App) -> Result<bool> {
     run_controller(&config)
 }
 
+fn renew_web_access_token(app: &App) -> Result<bool> {
+    eprintln!("Web access token expired. Renewing it from Chrome.");
+    let (token_env, access_token) = web_login::login(&app.matches)?;
+    let changed = env::var(token_env)
+        .map(|current| current != access_token)
+        .unwrap_or(true);
+    env::set_var(token_env, access_token);
+    Ok(changed)
+}
+
 fn run() -> Result<bool> {
     let app = App::new()?;
     if app.matches.is_present("config-dir") {
@@ -115,7 +125,12 @@ fn run() -> Result<bool> {
         match &result {
             Err(Error(ReqwestError(re), _)) => {
                 if Some(StatusCode::UNAUTHORIZED) != re.status() { break; };
-                if app.has_access_token(S_ACCESS_TOKEN_ENV) { break; };
+                if app.matches.is_present("web-login") {
+                    if !renew_web_access_token(&app)? { break; }
+                    result = run_sakurazaka(&app);
+                    continue;
+                }
+                if app.has_access_token(S_ACCESS_TOKEN_ENV) { break; }
                 delete_access_token_file()?;
                 result = run_sakurazaka(&app);
             }
@@ -130,7 +145,12 @@ fn run() -> Result<bool> {
         match &result {
             Err(Error(ReqwestError(re), _)) => {
                 if Some(StatusCode::UNAUTHORIZED) != re.status() { break; };
-                if app.has_access_token(H_ACCESS_TOKEN_ENV) { break; };
+                if app.matches.is_present("web-login") {
+                    if !renew_web_access_token(&app)? { break; }
+                    result = run_hinatazaka(&app);
+                    continue;
+                }
+                if app.has_access_token(H_ACCESS_TOKEN_ENV) { break; }
                 delete_access_token_file()?;
                 result = run_hinatazaka(&app);
             }
@@ -145,7 +165,12 @@ fn run() -> Result<bool> {
         match &result {
             Err(Error(ReqwestError(re), _)) => {
                 if Some(StatusCode::UNAUTHORIZED) != re.status() { break; };
-                if app.has_access_token(N_ACCESS_TOKEN_ENV) { break; };
+                if app.matches.is_present("web-login") {
+                    if !renew_web_access_token(&app)? { break; }
+                    result = run_nogizaka(&app);
+                    continue;
+                }
+                if app.has_access_token(N_ACCESS_TOKEN_ENV) { break; }
                 delete_access_token_file()?;
                 result = run_nogizaka(&app);
             }

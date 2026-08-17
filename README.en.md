@@ -52,7 +52,7 @@ colmsg --web-login --group hinatazaka -k picture -k video
 
 `colmsg` keeps the signed-in state in a dedicated Chrome profile. Do not share this directory. Set `COLMSG_CHROME` if Chrome cannot be detected automatically, or `COLMSG_WEB_PROFILE` to choose a different profile location.
 
-Web access tokens expire quickly. If one expires during a download, run the command again; messages already saved will not be downloaded again.
+Web access tokens expire quickly. If one expires during a download, `colmsg` obtains a new token from Chrome and resumes automatically. If renewal fails, run the same command again; messages already saved will not be downloaded again.
 
 ## Features
 
