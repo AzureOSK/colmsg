@@ -195,6 +195,30 @@ brew tap proshunsuke/colmsg
 brew install colmsg
 ```
 
+To install without Homebrew, download the macOS archive for your system from the [releases page](https://github.com/proshunsuke/colmsg/releases):
+
+- Apple Silicon: `colmsg-vX.Y.Z-aarch64-apple-darwin.tar.gz`
+- Intel: `colmsg-vX.Y.Z-x86_64-apple-darwin.tar.gz`
+
+Then extract and install the binary, replacing `vX.Y.Z` with the downloaded version:
+
+```shell
+cd ~/Downloads
+tar -xzf colmsg-vX.Y.Z-aarch64-apple-darwin.tar.gz
+chmod +x colmsg
+mkdir -p ~/.local/bin
+mv colmsg ~/.local/bin/
+```
+
+Intel users should use the `x86_64` archive name in the `tar` command. If `~/.local/bin` is not already on your `PATH`, add it:
+
+```shell
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+Confirm the installation with `colmsg --version`. If macOS blocks the binary because the developer cannot be verified, confirm that it came from the release page and allow it under **System Settings > Privacy & Security**.
+
 ### Arch Linux
 
 Install from the [AUR](https://aur.archlinux.org/packages/colmsg/):

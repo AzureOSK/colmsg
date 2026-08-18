@@ -176,6 +176,30 @@ brew tap proshunsuke/colmsg
 brew install colmsg
 ```
 
+Homebrewを使わない場合は、[リリースページ](https://github.com/proshunsuke/colmsg/releases)から使用しているMacに合うアーカイブをダウンロードしてください。
+
+* Apple Silicon: `colmsg-vX.Y.Z-aarch64-apple-darwin.tar.gz`
+* Intel: `colmsg-vX.Y.Z-x86_64-apple-darwin.tar.gz`
+
+`vX.Y.Z` をダウンロードしたバージョンに置き換え、バイナリを展開してインストールします。
+
+```shell
+cd ~/Downloads
+tar -xzf colmsg-vX.Y.Z-aarch64-apple-darwin.tar.gz
+chmod +x colmsg
+mkdir -p ~/.local/bin
+mv colmsg ~/.local/bin/
+```
+
+Intel Macでは、`tar` コマンドのアーカイブ名を `x86_64` のものに変更してください。`~/.local/bin` にパスが通っていない場合は、以下を実行します。
+
+```shell
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+`colmsg --version` でインストールを確認できます。開発元を確認できないという理由でmacOSに実行を止められた場合は、リリースページから取得したファイルであることを確認したうえで、「システム設定」>「プライバシーとセキュリティ」から実行を許可してください。
+
 ### Arch Linux
 
 [AUR](https://aur.archlinux.org/packages/colmsg/)からインストールできます。
